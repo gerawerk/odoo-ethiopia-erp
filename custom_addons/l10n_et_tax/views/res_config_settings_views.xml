@@ -7,11 +7,27 @@
         <field name="arch" type="xml">
             <xpath expr="//app[@name='account']" position="inside">
                 <block title="Ethiopian Tax Localization (የኢትዮጵያ ታክስ)" name="l10n_et_settings">
-                    <setting id="et_company_tin_setting" string="Company TIN" help="10-digit Tax Identification Number registered with Ministry of Revenues">
+                    <setting id="et_company_tin_setting" string="Company Tax Identifiers" help="10-digit TIN and VAT Registration Number registered with Ministry of Revenues">
                         <div class="content-group">
                             <div class="row mt16">
                                 <label for="et_tin_number" string="TIN Number" class="col-lg-4 o_light_label"/>
                                 <field name="et_tin_number" placeholder="10 numeric digits"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="et_vat_reg_number" string="VAT Reg. Number" class="col-lg-4 o_light_label"/>
+                                <field name="et_vat_reg_number" placeholder="e.g. 1234567890"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="et_sub_city" string="Sub-City" class="col-lg-4 o_light_label"/>
+                                <field name="et_sub_city" placeholder="e.g. Bole"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="et_woreda" string="Woreda" class="col-lg-4 o_light_label"/>
+                                <field name="et_woreda" placeholder="e.g. Woreda 03"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="et_house_number" string="House No." class="col-lg-4 o_light_label"/>
+                                <field name="et_house_number" placeholder="e.g. 452"/>
                             </div>
                         </div>
                     </setting>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit Vendor Bill & Customer Invoice Form View -->
+    <record id="view_move_form_inherit_l10n_et_wht" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.l10n.et.wht</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <!-- Header Action Buttons for WHT -->
+            <xpath expr="//header" position="inside">
+                <button name="action_apply_wht" string="Apply WHT (2%)" type="object"
+                        class="btn-primary"
+                        invisible="move_type != 'in_invoice' or state != 'draft' or wht_applied"/>
+                <button name="action_remove_wht" string="Remove WHT" type="object"
+                        class="btn-secondary"
+                        invisible="move_type != 'in_invoice' or state != 'draft' or not wht_applied"/>
+            </xpath>
+
+            <!-- Sheet Alert Banner for MOR Compliance -->
+            <xpath expr="//notebook" position="before">
+                <div class="alert alert-warning mb-2" role="alert"
+                     invisible="not wht_warning">
+                    <field name="wht_warning" readonly="1"/>
+                </div>
+            </xpath>
+
+            <!-- Show Customer / Vendor Ethiopian TIN and VAT Reg No directly on header -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="partner_tin_number" readonly="1" invisible="not partner_tin_number"/>
+                <field name="partner_vat_reg_number" readonly="1" invisible="not partner_vat_reg_number"/>
+            </xpath>
+
+            <!-- Show Ethiopian Credit Note Details if this document is a Credit Note / Refund -->
+            <xpath expr="//field[@name='invoice_date']" position="after">
+                <field name="is_credit_note" invisible="1"/>
+                <field name="et_credit_reason" invisible="not is_credit_note" readonly="state != 'draft'" required="is_credit_note"/>
+                <field name="et_original_invoice_id" invisible="not is_credit_note" readonly="state != 'draft'"/>
+                <field name="et_original_invoice_date" invisible="not is_credit_note or not et_original_invoice_id"/>
+            </xpath>
+
+            <!-- Ethiopian Tax & Compliance Tab in Notebook -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Ethiopian Tax &amp; Compliance" name="ethiopian_tax_page">
+                    <!-- Section for Vendor Bills (Withholding Tax) -->
+                    <group string="Withholding Tax Rules (የተቀናሽ ታክስ ደንቦች)" invisible="move_type not in ('in_invoice', 'in_refund')">
+                        <group>
+                            <field name="wht_type" readonly="state != 'draft'"/>
+                            <field name="wht_threshold" readonly="1"/>
+                            <field name="wht_threshold_exceeded" invisible="1"/>
+                            <field name="wht_applied" readonly="1" widget="boolean_toggle"/>
+                        </group>
+                        <group string="Withholding Amounts (የስሌት ውጤት)">
+                            <field name="wht_rate" readonly="1"/>
+                            <field name="wht_amount" readonly="1"/>
+                            <field name="wht_net_payable" readonly="1" class="oe_subtotal_footer_separator"/>
+                        </group>
+                    </group>
+
+                    <!-- Section for Credit Notes (MOR Article 24) -->
+                    <group string="Credit / Debit Note Adjustment Details (የማስተካከያ ዝርዝር)" invisible="not is_credit_note">
+                        <group>
+                            <field name="et_credit_reason" readonly="state != 'draft'"/>
+                            <field name="et_original_invoice_id" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="et_original_invoice_date"/>
+                        </group>
+                    </group>
+
+                    <!-- Section for Fiscal Cash Register (FCR / ESRM) on Sales -->
+                    <group string="Fiscal Cash Register Machine (የሽያጭ መመዝገቢያ ማሽን)" invisible="move_type not in ('out_invoice', 'out_receipt')">
+                        <group>
+                            <field name="fcr_mrc" placeholder="e.g. MOR-FCR-1234"/>
+                            <field name="fcr_fs_no" placeholder="e.g. 0004521"/>
+                        </group>
+                        <group>
+                            <field name="fcr_ej_no" placeholder="e.g. 0012"/>
+                        </group>
+                    </group>
+
+                    <!-- Section for Partner Registered Ethiopian Address -->
+                    <group string="Partner Registered Address (የተመዘገበ አድራሻ)">
+                        <group>
+                            <field name="partner_sub_city" readonly="1"/>
+                            <field name="partner_woreda" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="partner_house_number" readonly="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Invoice / Bill List View to Show WHT Column -->
+    <record id="view_invoice_tree_inherit_l10n_et_wht" model="ir.ui.view">
+        <field name="name">account.move.list.inherit.l10n.et.wht</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='amount_total_signed']" position="after">
+                <field name="wht_amount" optional="show" string="WHT (2%)"/>
+                <field name="wht_applied" optional="hide" widget="boolean_toggle"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

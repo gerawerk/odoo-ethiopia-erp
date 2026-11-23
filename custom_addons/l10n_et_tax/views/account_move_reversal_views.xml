@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit Account Move Reversal Wizard Dialog -->
+    <record id="view_account_move_reversal_inherit_l10n_et" model="ir.ui.view">
+        <field name="name">account.move.reversal.form.inherit.l10n.et</field>
+        <field name="model">account.move.reversal</field>
+        <field name="inherit_id" ref="account.view_account_move_reversal"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='reason']" position="before">
+                <field name="et_credit_reason" required="move_type != 'entry'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

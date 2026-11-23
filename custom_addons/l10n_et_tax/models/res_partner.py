@@ -6,10 +6,27 @@ class ResPartner(models.Model):
     _inherit = 'res.partner'
 
     tin_number = fields.Char(
-        string='Ethiopian TIN',
+        string='Ethiopian TIN (የግብር መለያ ቁጥር)',
         size=10,
         help='10-digit Tax Identification Number issued by Ministry of Revenues (MOR)',
         tracking=True,
+    )
+    vat_reg_number = fields.Char(
+        string='VAT Reg. Number (የተ.እ.ታ ምዝገባ ቁጥር)',
+        help='VAT Registration Certificate Number issued by Ministry of Revenues',
+        tracking=True,
+    )
+    sub_city = fields.Char(
+        string='Sub-City (ክፍለ ከተማ)',
+        help='Ethiopian Sub-City (e.g. Bole, Kirkos, Yeka, Arada, etc.)',
+    )
+    woreda = fields.Char(
+        string='Woreda (ወረዳ)',
+        help='Ethiopian Woreda / Kebele administrative subdivision',
+    )
+    house_number = fields.Char(
+        string='House No. (የቤት ቁጥር)',
+        help='Registered physical house or building number',
     )
     is_withholding_agent = fields.Boolean(
         string='Withholding Agent',

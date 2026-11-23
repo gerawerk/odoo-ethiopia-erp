@@ -9,6 +9,19 @@ class ResCompany(models.Model):
         size=10,
         help='10-digit Tax Identification Number of the company',
     )
+    et_vat_reg_number = fields.Char(
+        string='Company VAT Reg. No.',
+        help='Company official VAT registration number issued by MOR',
+    )
+    et_sub_city = fields.Char(
+        string='Company Sub-City (ክፍለ ከተማ)',
+    )
+    et_woreda = fields.Char(
+        string='Company Woreda (ወረዳ)',
+    )
+    et_house_number = fields.Char(
+        string='Company House No. (የቤት ቁጥር)',
+    )
     et_wht_enabled = fields.Boolean(
         string='Enable Withholding Tax (WHT)',
         default=True,

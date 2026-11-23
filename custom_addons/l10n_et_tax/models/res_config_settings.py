@@ -8,6 +8,22 @@ class ResConfigSettings(models.TransientModel):
         related='company_id.et_tin_number',
         readonly=False,
     )
+    et_vat_reg_number = fields.Char(
+        related='company_id.et_vat_reg_number',
+        readonly=False,
+    )
+    et_sub_city = fields.Char(
+        related='company_id.et_sub_city',
+        readonly=False,
+    )
+    et_woreda = fields.Char(
+        related='company_id.et_woreda',
+        readonly=False,
+    )
+    et_house_number = fields.Char(
+        related='company_id.et_house_number',
+        readonly=False,
+    )
     et_wht_enabled = fields.Boolean(
         related='company_id.et_wht_enabled',
         readonly=False,
