@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit Partner Form View -->
+    <record id="view_partner_form_inherit_l10n_et" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.l10n.et</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vat']" position="after">
+                <field name="tin_number" placeholder="e.g. 0012345678 (10 digits)"/>
+                <field name="is_withholding_agent"/>
+                <field name="is_vat_registered"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Partner List View -->
+    <record id="view_partner_tree_inherit_l10n_et" model="ir.ui.view">
+        <field name="name">res.partner.list.inherit.l10n.et</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vat']" position="after">
+                <field name="tin_number" optional="show"/>
+                <field name="is_withholding_agent" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

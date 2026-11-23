@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_l10n_et" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.l10n.et</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='account']" position="inside">
+                <block title="Ethiopian Tax Localization (የኢትዮጵያ ታክስ)" name="l10n_et_settings">
+                    <setting id="et_company_tin_setting" string="Company TIN" help="10-digit Tax Identification Number registered with Ministry of Revenues">
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label for="et_tin_number" string="TIN Number" class="col-lg-4 o_light_label"/>
+                                <field name="et_tin_number" placeholder="10 numeric digits"/>
+                            </div>
+                        </div>
+                    </setting>
+                    <setting id="et_wht_setting" string="Withholding Tax (WHT)" help="Automatically deduct Withholding Tax on qualifying supplier bills">
+                        <field name="et_wht_enabled"/>
+                        <div class="content-group" invisible="not et_wht_enabled">
+                            <div class="row mt16">
+                                <label for="et_wht_rate" string="WHT Rate (%)" class="col-lg-4 o_light_label"/>
+                                <field name="et_wht_rate" class="oe_inline"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="et_wht_goods_threshold" string="Goods Threshold (ETB)" class="col-lg-4 o_light_label"/>
+                                <field name="et_wht_goods_threshold" class="oe_inline"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="et_wht_services_threshold" string="Services Threshold (ETB)" class="col-lg-4 o_light_label"/>
+                                <field name="et_wht_services_threshold" class="oe_inline"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="et_wht_tax_id" string="Default WHT Tax" class="col-lg-4 o_light_label"/>
+                                <field name="et_wht_tax_id"/>
+                            </div>
+                        </div>
+                    </setting>
+                    <setting id="et_tot_setting" string="Turnover Tax (TOT)" help="Default Turnover Tax for non-VAT registered transactions">
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label for="et_tot_goods_tax_id" string="TOT Goods (2%)" class="col-lg-4 o_light_label"/>
+                                <field name="et_tot_goods_tax_id"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="et_tot_services_tax_id" string="TOT Services (10%)" class="col-lg-4 o_light_label"/>
+                                <field name="et_tot_services_tax_id"/>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

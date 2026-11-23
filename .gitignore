@@ -1,0 +1,28 @@
+# Python Virtual Environment
+odoo-venv/
+venv/
+ENV/
+env/
+.venv
+
+# Odoo Data & Filestore
+data/
+*.log
+*.pid
+
+# Upstream Odoo core repository (cloned separately)
+odoo/
+
+# Python compiled bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# OS / Editor temporary files
+.DS_Store
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
