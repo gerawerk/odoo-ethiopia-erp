@@ -29,6 +29,6 @@ Ethiopian Tax & Accounting Localization
         'views/account_move_reversal_views.xml',
     ],
     'installable': True,
-    'application': False,
+    'application': True,
     'license': 'LGPL-3',
 }
