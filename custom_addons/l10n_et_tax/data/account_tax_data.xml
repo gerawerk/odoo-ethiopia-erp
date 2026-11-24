@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- ============================================== -->
+        <!-- SALES TAXES (የሽያጭ ታክሶች)                        -->
+        <!-- ============================================== -->
+
+        <!-- Standard VAT 15% Sales -->
+        <record id="et_tax_sale_vat_15" model="account.tax">
+            <field name="name">VAT 15% (Sales)</field>
+            <field name="description">VAT 15%</field>
+            <field name="type_tax_use">sale</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">15.0</field>
+            <field name="country_id" ref="base.et"/>
+            <field name="tax_group_id" ref="l10n_et.tax_group_vat_15"/>
+        </record>
+
+        <!-- Zero-Rated VAT 0% Sales (Export) -->
+        <record id="et_tax_sale_vat_0" model="account.tax">
+            <field name="name">VAT 0% (Export Sales)</field>
+            <field name="description">VAT 0%</field>
+            <field name="type_tax_use">sale</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">0.0</field>
+            <field name="country_id" ref="base.et"/>
+            <field name="tax_group_id" ref="l10n_et.tax_group_vat_0"/>
+        </record>
+
+        <!-- VAT Exempt Sales -->
+        <record id="et_tax_sale_vat_exempt" model="account.tax">
+            <field name="name">VAT Exempt (Sales)</field>
+            <field name="description">VAT Exempt</field>
+            <field name="type_tax_use">sale</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">0.0</field>
+            <field name="country_id" ref="base.et"/>
+            <field name="tax_group_id" ref="l10n_et.tax_group_vat_0"/>
+        </record>
+
+        <!-- Turnover Tax 2% Sales (Goods) -->
+        <record id="et_tax_sale_tot_2" model="account.tax">
+            <field name="name">TOT 2% (Sales - Goods)</field>
+            <field name="description">TOT 2%</field>
+            <field name="type_tax_use">sale</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">2.0</field>
+            <field name="is_tot_tax">True</field>
+            <field name="country_id" ref="base.et"/>
+            <field name="tax_group_id" ref="l10n_et_tax.tax_group_tot_2"/>
+        </record>
+
+        <!-- Turnover Tax 10% Sales (Services) -->
+        <record id="et_tax_sale_tot_10" model="account.tax">
+            <field name="name">TOT 10% (Sales - Services)</field>
+            <field name="description">TOT 10%</field>
+            <field name="type_tax_use">sale</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">10.0</field>
+            <field name="is_tot_tax">True</field>
+            <field name="country_id" ref="base.et"/>
+            <field name="tax_group_id" ref="l10n_et_tax.tax_group_tot_10"/>
+        </record>
+
+        <!-- ============================================== -->
+        <!-- PURCHASE TAXES (የግዢ ታክሶች)                      -->
+        <!-- ============================================== -->
+
+        <!-- Standard VAT 15% Purchases -->
+        <record id="et_tax_purchase_vat_15" model="account.tax">
+            <field name="name">VAT 15% (Purchases)</field>
+            <field name="description">VAT 15%</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">15.0</field>
+            <field name="country_id" ref="base.et"/>
+            <field name="tax_group_id" ref="l10n_et.tax_group_vat_15"/>
+        </record>
+
+        <!-- Zero-Rated VAT 0% Purchases -->
+        <record id="et_tax_purchase_vat_0" model="account.tax">
+            <field name="name">VAT 0% (Purchases)</field>
+            <field name="description">VAT 0%</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">0.0</field>
+            <field name="country_id" ref="base.et"/>
+            <field name="tax_group_id" ref="l10n_et.tax_group_vat_0"/>
+        </record>
+
+        <!-- VAT Exempt Purchases -->
+        <record id="et_tax_purchase_vat_exempt" model="account.tax">
+            <field name="name">VAT Exempt (Purchases)</field>
+            <field name="description">VAT Exempt</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">0.0</field>
+            <field name="country_id" ref="base.et"/>
+            <field name="tax_group_id" ref="l10n_et.tax_group_vat_0"/>
+        </record>
+
+        <!-- Turnover Tax 2% Purchases (Goods) -->
+        <record id="et_tax_purchase_tot_2" model="account.tax">
+            <field name="name">TOT 2% (Purchases - Goods)</field>
+            <field name="description">TOT 2%</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">2.0</field>
+            <field name="is_tot_tax">True</field>
+            <field name="country_id" ref="base.et"/>
+            <field name="tax_group_id" ref="l10n_et_tax.tax_group_tot_2"/>
+        </record>
+
+        <!-- Turnover Tax 10% Purchases (Services) -->
+        <record id="et_tax_purchase_tot_10" model="account.tax">
+            <field name="name">TOT 10% (Purchases - Services)</field>
+            <field name="description">TOT 10%</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">10.0</field>
+            <field name="is_tot_tax">True</field>
+            <field name="country_id" ref="base.et"/>
+            <field name="tax_group_id" ref="l10n_et_tax.tax_group_tot_10"/>
+        </record>
+
+        <!-- Withholding Tax 2% Purchases -->
+        <record id="et_tax_purchase_wht_2" model="account.tax">
+            <field name="name">Withholding Tax 2% (Purchases)</field>
+            <field name="description">WHT 2%</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">-2.0</field>
+            <field name="is_wht_tax">True</field>
+            <field name="country_id" ref="base.et"/>
+            <field name="tax_group_id" ref="l10n_et.tax_group_withh_2"/>
+        </record>
+    </data>
+</odoo>

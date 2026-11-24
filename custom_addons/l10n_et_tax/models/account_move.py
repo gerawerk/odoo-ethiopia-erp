@@ -1,6 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+from ..tools.amount_to_text_am import amount_to_amharic
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -126,6 +127,62 @@ class AccountMove(models.Model):
         compute='_compute_wht_warning',
     )
 
+    # Official Ministry of Revenues (MOR) Withholding Tax Receipt Fields
+    wht_receipt_number = fields.Char(
+        string='WHT Receipt No.',
+        copy=False,
+        readonly=True,
+        index=True,
+        tracking=True,
+        help='Official sequential Ethiopian Withholding Tax Certificate Number (የተቀናሽ ግብር ደረሰኝ ቁጥር)',
+    )
+    wht_receipt_date = fields.Date(
+        string='WHT Certificate Date',
+        copy=False,
+        tracking=True,
+        help='Date when the Withholding Tax Certificate was officially issued',
+    )
+    wht_manual_receipt_number = fields.Char(
+        string='Manual Booklet Serial No.',
+        copy=False,
+        tracking=True,
+        help='Pre-printed paper receipt booklet serial number if manually issued (የደረሰኝ ቁጥር ከመጽሐፍ)',
+    )
+    wht_certificate_issued = fields.Boolean(
+        string='WHT Certificate Generated',
+        copy=False,
+        readonly=True,
+        tracking=True,
+    )
+    wht_certificate_printed_count = fields.Integer(
+        string='Receipt Print Count',
+        default=0,
+        copy=False,
+    )
+    wht_officer_name = fields.Char(
+        string='Authorized Tax Officer',
+        copy=False,
+        help='Officer certifying the withholding on behalf of company (ያረጋገጠው ባለስልጣን ስም)',
+    )
+    wht_amount_words_en = fields.Char(
+        string='WHT In Words (EN)',
+        compute='_compute_wht_amount_words',
+    )
+    wht_amount_words_am = fields.Char(
+        string='WHT In Words (AM)',
+        compute='_compute_wht_amount_words',
+    )
+
+    @api.depends('wht_amount', 'currency_id')
+    def _compute_wht_amount_words(self):
+        for move in self:
+            if move.wht_amount > 0:
+                move.wht_amount_words_am = amount_to_amharic(move.wht_amount)
+                move.wht_amount_words_en = move.currency_id.amount_to_text(move.wht_amount)
+            else:
+                move.wht_amount_words_am = False
+                move.wht_amount_words_en = False
+
     @api.depends('move_type')
     def _compute_is_credit_note(self):
         for move in self:
@@ -228,6 +285,29 @@ class AccountMove(models.Model):
                 if wht_taxes:
                     line.tax_ids = [(3, t.id) for t in wht_taxes]
 
+    def action_generate_wht_receipt(self):
+        """Generates the official sequential WHT Receipt number if not already present."""
+        for move in self:
+            if not move.wht_applied or move.move_type not in ('in_invoice', 'in_refund'):
+                continue
+            if not move.wht_receipt_number:
+                seq = self.env['ir.sequence'].next_by_code('l10n_et_tax.wht.receipt')
+                move.wht_receipt_number = seq or f"WHT/{fields.Date.today().year}/{move.id:05d}"
+            if not move.wht_receipt_date:
+                move.wht_receipt_date = move.invoice_date or fields.Date.context_today(move)
+            if not move.wht_officer_name and move.company_id.et_wht_officer_name:
+                move.wht_officer_name = move.company_id.et_wht_officer_name
+            move.wht_certificate_issued = True
+
+    def action_print_wht_receipt(self):
+        """Generates receipt number if needed, increments print count, and returns PDF report."""
+        self.ensure_one()
+        if not self.wht_applied:
+            raise UserError(_("No Withholding Tax is applied on this vendor bill."))
+        self.action_generate_wht_receipt()
+        self.wht_certificate_printed_count += 1
+        return self.env.ref('l10n_et_tax.action_report_wht_receipt').report_action(self)
+
     def action_post(self):
         """Enforces Ethiopian Credit Note reason and logs audit trails."""
         for move in self:
@@ -239,11 +319,14 @@ class AccountMove(models.Model):
         res = super().action_post()
         for move in self:
             if move.move_type == 'in_invoice' and move.wht_applied:
+                move.action_generate_wht_receipt()
                 move.message_post(body=_(
                     "<b>Ethiopian Withholding Tax Deducted:</b><br/>"
+                    "• Official WHT Receipt No: %(rcpt)s<br/>"
                     "• Rate: %(rate)s%%<br/>"
                     "• Amount Withheld: %(amount)s %(curr)s<br/>"
                     "• Net Payable to Vendor: %(net)s %(curr)s",
+                    rcpt=move.wht_receipt_number or 'Pending',
                     rate=move.wht_rate,
                     amount=f"{move.wht_amount:,.2f}",
                     net=f"{move.wht_net_payable:,.2f}",

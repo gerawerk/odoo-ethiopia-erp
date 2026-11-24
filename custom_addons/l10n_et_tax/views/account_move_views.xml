@@ -14,6 +14,9 @@
                 <button name="action_remove_wht" string="Remove WHT" type="object"
                         class="btn-secondary"
                         invisible="move_type != 'in_invoice' or state != 'draft' or not wht_applied"/>
+                <button name="action_print_wht_receipt" string="Print WHT Receipt" type="object"
+                        class="btn-primary" icon="fa-print"
+                        invisible="move_type != 'in_invoice' or state != 'posted' or not wht_applied"/>
             </xpath>
 
             <!-- Sheet Alert Banner for MOR Compliance -->
@@ -54,6 +57,24 @@
                             <field name="wht_amount" readonly="1"/>
                             <field name="wht_net_payable" readonly="1" class="oe_subtotal_footer_separator"/>
                         </group>
+                    </group>
+
+                    <!-- Official Withholding Tax Receipt Metadata -->
+                    <group string="Official WHT Certificate Details (የተቀናሽ ግብር ደረሰኝ መረጃ)" invisible="move_type not in ('in_invoice', 'in_refund') or not wht_applied">
+                        <group>
+                            <field name="wht_receipt_number" readonly="1"/>
+                            <field name="wht_receipt_date" readonly="state == 'cancel'"/>
+                            <field name="wht_manual_receipt_number" readonly="state == 'cancel'"/>
+                        </group>
+                        <group>
+                            <field name="wht_officer_name" readonly="state == 'cancel'"/>
+                            <field name="wht_certificate_issued" readonly="1" widget="boolean_toggle"/>
+                            <field name="wht_certificate_printed_count" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Withheld Tax Amount in Words (የተቀነሰው ታክስ በፊደል)" invisible="move_type not in ('in_invoice', 'in_refund') or not wht_applied">
+                        <field name="wht_amount_words_am" readonly="1"/>
+                        <field name="wht_amount_words_en" readonly="1"/>
                     </group>
 
                     <!-- Section for Credit Notes (MOR Article 24) -->
@@ -105,4 +126,52 @@
             </xpath>
         </field>
     </record>
+
+    <!-- Dedicated List View for WHT Receipts -->
+    <record id="view_l10n_et_wht_receipt_tree" model="ir.ui.view">
+        <field name="name">account.move.tree.l10n.et.wht.receipt</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <list string="Withholding Tax Receipts (የተቀናሽ ግብር ደረሰኞች)" create="false" delete="false">
+                <field name="wht_receipt_number" decoration-bf="1"/>
+                <field name="wht_receipt_date"/>
+                <field name="partner_id" string="Supplier / Payee"/>
+                <field name="partner_tin_number" string="Supplier TIN"/>
+                <field name="ref" string="Bill Ref"/>
+                <field name="wht_type" string="Category"/>
+                <field name="amount_untaxed" string="Base Untaxed"/>
+                <field name="wht_rate" string="Rate (%)"/>
+                <field name="wht_amount" sum="Total Withheld" decoration-danger="1"/>
+                <field name="wht_net_payable" sum="Total Net Paid" decoration-success="1"/>
+                <field name="wht_manual_receipt_number" optional="hide"/>
+                <field name="currency_id" column_invisible="True"/>
+                <button name="action_print_wht_receipt" string="Print Receipt" type="object" icon="fa-print"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Window Action for WHT Receipts Dashboard -->
+    <record id="action_l10n_et_wht_receipt" model="ir.actions.act_window">
+        <field name="name">WHT Receipts (የተቀናሽ ግብር ደረሰኞች)</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_l10n_et_wht_receipt_tree"/>
+        <field name="domain">[('move_type', 'in', ('in_invoice', 'in_refund')), ('state', '=', 'posted'), ('wht_applied', '=', True)]</field>
+        <field name="context">{'create': False, 'delete': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Withholding Tax receipts issued yet!
+            </p>
+            <p>
+                Once you post vendor bills with 2% Withholding Tax applied, official sequential WHT receipts will appear here for monthly Ministry of Revenues (MOR) reporting and printing.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menuitem under Vendors (menu_finance_payables) -->
+    <menuitem id="menu_action_l10n_et_wht_receipt"
+              name="WHT Receipts (የተቀናሽ ደረሰኝ)"
+              parent="account.menu_finance_payables"
+              action="action_l10n_et_wht_receipt"
+              sequence="25"/>
 </odoo>

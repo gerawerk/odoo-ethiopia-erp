@@ -63,3 +63,12 @@ class ResCompany(models.Model):
         domain="[('type_tax_use', '=', 'sale')]",
         help='Default Turnover Tax for supply of services by non-VAT registered businesses',
     )
+    et_wht_officer_name = fields.Char(
+        string='Authorized Tax Officer Name',
+        help='Default officer name printed on WHT certificates (ያረጋገጠው ባለስልጣን ስም)',
+    )
+    et_wht_officer_title = fields.Char(
+        string='Authorized Officer Title',
+        default='Finance Manager / Tax Officer',
+        help='Title of the authorized signatory on WHT certificates (የባለስልጣኑ የስራ መደብ)',
+    )

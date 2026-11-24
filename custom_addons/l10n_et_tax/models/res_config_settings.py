@@ -52,3 +52,11 @@ class ResConfigSettings(models.TransientModel):
         related='company_id.et_tot_services_tax_id',
         readonly=False,
     )
+    et_wht_officer_name = fields.Char(
+        related='company_id.et_wht_officer_name',
+        readonly=False,
+    )
+    et_wht_officer_title = fields.Char(
+        related='company_id.et_wht_officer_title',
+        readonly=False,
+    )

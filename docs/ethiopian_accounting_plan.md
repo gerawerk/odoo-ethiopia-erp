@@ -65,3 +65,36 @@ Exposed in **Settings -> Accounting -> Ethiopian Tax Localization**:
 - `et_wht_rate`: Withholding tax percentage (default: `2.0%`).
 - `et_wht_tax_id`: The withholding tax record to apply on qualifying bills.
 - `et_wht_journal_id`: The journal for recording tax withholdings.
+- `et_wht_officer_name`: Authorized tax officer name printed on WHT certificates.
+- `et_wht_officer_title`: Authorized officer title printed on WHT certificates.
+
+---
+
+## 4. Day 4 Specification: Official MOR Withholding Tax Certificate (`l10n_et_tax`)
+
+### 4.1 Legal Mandate
+Under the **Federal Income Tax Proclamation No. 979/2016** (Articles 88–93) and Council of Ministers Regulation No. 410/2017:
+- Any business or withholding agent deducting 2% Withholding Tax from suppliers (Goods $\ge$ 10,000 ETB, Services $\ge$ 3,000 ETB) must provide an official **Withholding Tax Receipt (የተቀናሽ ግብር ደረሰኝ)** to the payee.
+- Suppliers rely on this official certificate to submit to the Ministry of Revenues (MOR) to claim tax credits against their annual corporate profit tax.
+
+### 4.2 Technical Architecture & Deliverables
+1. **Sequential Certificate Numbering (`ir.sequence`)**:
+   - Code: `l10n_et_tax.wht.receipt`
+   - Format: `WHT/%(year)s/00001`
+   - Generated automatically when vendor bills with WHT are confirmed (`action_post`), or manually via `action_generate_wht_receipt()`.
+   - Also supports manual booklet serial numbers (`wht_manual_receipt_number`) for companies utilizing pre-printed MOR paper pads.
+2. **Bilingual Amount-in-Words Converter (`amount_to_text_am.py`)**:
+   - Converts monetary ETB amounts into official Amharic financial wording:
+     - Example: `15,432.75 ETB` $\rightarrow$ *"አስራ አምስት ሺህ አራት መቶ ሰላሳ ሁለት ብር ከሰባ አምስት ሳንቲም ብቻ"*
+   - In English: *"Fifteen Thousand Four Hundred Thirty-Two Birr and Seventy-Five Cents Only"*
+3. **Official Printable QWeb PDF Report (`action_report_wht_receipt`)**:
+   - Layout matching the Ministry of Revenues standard format:
+     - Ministry Header (Federal Democratic Republic of Ethiopia Ministry of Revenues / የገቢዎች ሚኒስቴር).
+     - Withholding Agent (Company) TIN, VAT Reg No, Registered Address.
+     - Payee (Supplier) Name, 10-digit TIN, VAT Reg No, Address.
+     - Transaction summary: Gross Untaxed, Base for WHT, Rate (2%), Withheld Amount, Net Disbursed.
+     - Withheld amount printed in both Amharic & English words.
+     - Legal declaration and 3 signature blocks (Prepared By, Authorized Officer, Official Seal / Stamp).
+4. **WHT Receipts Dashboard**:
+   - Direct menu in Invoicing: **Vendors $\rightarrow$ WHT Receipts (የተቀናሽ ደረሰኝ)**.
+   - Filter and review all WHT receipts issued in any tax period, with one-click reprint.

@@ -6,7 +6,7 @@ env/
 .venv
 
 # Odoo Data & Filestore
-data/
+/data/
 *.log
 *.pid
 

@@ -16,12 +16,19 @@ Ethiopian Tax & Accounting Localization
   * Reversal wizard integration.
 - Ethiopian Address Format (Sub-City, Woreda, House No).
 - Fiscal Cash Register (FCR / ESRM) tracking fields.
+- Official Ministry of Revenues (MOR) Withholding Tax Receipt (የተቀናሽ ግብር ደረሰኝ):
+  * Unique sequential WHT certificate numbering (WHT/YYYY/XXXXX) and manual booklet serial tracking.
+  * Printable bilingual (Amharic & English) QWeb PDF certificate complying with Proclamation No. 979/2016.
+  * Automatic Amharic and English amount-in-words generation.
+  * Dedicated WHT Receipts dashboard under Vendors menu.
     """,
     'author': 'Custom Ethiopian Localization Team',
     'depends': ['account', 'l10n_et'],
     'data': [
+        'data/ir_sequence_data.xml',
         'data/account_tax_group_data.xml',
         'data/account_tax_data.xml',
+        'report/report_wht_receipt.xml',
         'views/res_partner_views.xml',
         'views/account_tax_views.xml',
         'views/res_config_settings_views.xml',

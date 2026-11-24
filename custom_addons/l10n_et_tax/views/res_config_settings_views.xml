@@ -64,6 +64,18 @@
                             </div>
                         </div>
                     </setting>
+                    <setting id="et_wht_signatory_setting" string="WHT Certificate Signatory" help="Authorized officer signing official Ministry of Revenues Withholding Tax Certificates">
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label for="et_wht_officer_name" string="Officer Name" class="col-lg-4 o_light_label"/>
+                                <field name="et_wht_officer_name" placeholder="e.g. Abebe Bikila"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="et_wht_officer_title" string="Officer Title" class="col-lg-4 o_light_label"/>
+                                <field name="et_wht_officer_title" placeholder="e.g. Finance Director / Tax Officer"/>
+                            </div>
+                        </div>
+                    </setting>
                 </block>
             </xpath>
         </field>
