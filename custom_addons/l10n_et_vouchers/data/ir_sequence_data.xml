@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Cash Payment Voucher (CPV) Sequence -->
+    <record id="seq_cpv" model="ir.sequence">
+        <field name="name">Ethiopian Cash Payment Voucher (CPV / የጥሬ ገንዘብ ክፍያ ማዘዣ)</field>
+        <field name="code">l10n_et_vouchers.seq_cpv</field>
+        <field name="prefix">CPV/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Cash Receipt Voucher (CRV) Sequence -->
+    <record id="seq_crv" model="ir.sequence">
+        <field name="name">Ethiopian Cash Receipt Voucher (CRV / የጥሬ ገንዘብ መቀበያ ሰነድ)</field>
+        <field name="code">l10n_et_vouchers.seq_crv</field>
+        <field name="prefix">CRV/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Bank Payment Voucher (BPV) Sequence -->
+    <record id="seq_bpv" model="ir.sequence">
+        <field name="name">Ethiopian Bank Payment Voucher (BPV / የባንክ ክፍያ ማዘዣ / ቼክ)</field>
+        <field name="code">l10n_et_vouchers.seq_bpv</field>
+        <field name="prefix">BPV/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Petty Cash Voucher (PCV) Sequence -->
+    <record id="seq_pcv" model="ir.sequence">
+        <field name="name">Ethiopian Petty Cash Voucher (PCV / የጥቃቅን ወጪ ማዘዣ)</field>
+        <field name="code">l10n_et_vouchers.seq_pcv</field>
+        <field name="prefix">PCV/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

@@ -11,7 +11,7 @@ This repository houses a modular suite of Ethiopian business modules complying w
 | Module | Name | Purpose | Status |
 | :--- | :--- | :--- | :---: |
 | **`l10n_et_tax`** | Ethiopian Tax & TIN Foundation | 10-digit TIN validation, 15% VAT, 2%/10% TOT, automated 2% WHT deduction & official MOR WHT certificate. | 🚀 Active |
-| **`l10n_et_vouchers`** | Ethiopian Financial Vouchers | Cash Payment (CPV), Cash Receipt (CRV), Bank Payment (BPV), Petty Cash (PCV), 4-stage approval workflow & Amharic amount-in-words. | 📋 Planned |
+| **`l10n_et_vouchers`** | Ethiopian Financial Vouchers | Cash Payment (CPV), Cash Receipt (CRV), Bank Payment (BPV), Petty Cash (PCV), 4-stage approval workflow & Amharic amount-in-words. | 🚀 Active |
 | **`l10n_et_calendar`** | Ethiopian (Ge'ez) Calendar | 13-month calendar engine, Hamle 1 – Sene 30 fiscal year, and dual-date (GC + EC) display on invoices and vouchers. | 📋 Planned |
 | **`l10n_et_payroll`** | Ethiopian Payroll & PIT | Employment Income Tax progressive brackets (0% - 35%), 7% employee + 11% employer pension (18% total), and POPSA reporting. | 📋 Planned |
 | **`l10n_et_inventory`** | Ethiopian Store Documents | Goods Receiving Note (GRN), Store Issue Voucher (SIV), Store Return Voucher (SRV), and bin card controls. | 📋 Planned |

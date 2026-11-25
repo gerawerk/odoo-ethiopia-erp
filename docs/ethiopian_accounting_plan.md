@@ -98,3 +98,37 @@ Under the **Federal Income Tax Proclamation No. 979/2016** (Articles 88–93) an
 4. **WHT Receipts Dashboard**:
    - Direct menu in Invoicing: **Vendors $\rightarrow$ WHT Receipts (የተቀናሽ ደረሰኝ)**.
    - Filter and review all WHT receipts issued in any tax period, with one-click reprint.
+
+---
+
+## 5. Day 5 Specification: Ethiopian Financial Vouchers (`l10n_et_vouchers`)
+
+### 5.1 Business Context & Statutory Mandate
+In Ethiopia, internal financial controls and external statutory audits governed by the **Accounting & Auditing Board of Ethiopia (AABE)** require dedicated payment and receipt vouchers with strict sequential numbering, multi-account breakdown, and dual-currency text representation before funds are disbursed or acknowledged.
+
+### 5.2 The 4 Ethiopian Voucher Types
+1. **CPV (Cash Payment Voucher / የጥሬ ገንዘብ ክፍያ ማዘዣ)**:
+   - Covers all direct cash payments from the cashier/safe.
+   - Tied to cash journals.
+   - Sequential format: `CPV/%(year)s/00001`.
+2. **CRV (Cash Receipt Voucher / የጥሬ ገንዘብ መቀበያ ሰነድ)**:
+   - Acknowledges all cash receipts deposited into the main cashier.
+   - Tied to cash journals.
+   - Sequential format: `CRV/%(year)s/00001`.
+3. **BPV (Bank Payment Voucher / የባንክ ክፍያ ማዘዣ / ቼክ)**:
+   - Manages payments disbursed via Bank Cheque, CPO (Certified Payment Order), or Electronic Bank Transfer (CBE, Awash, Telebirr, etc.).
+   - Captures cheque leaf number, cheque date, and beneficiary bank details.
+   - Tied to bank journals.
+   - Sequential format: `BPV/%(year)s/00001`.
+4. **PCV (Petty Cash Voucher / የጥቃቅን ወጪ ማዘዣ)**:
+   - Manages day-to-day petty cash disbursements under the imprest fund system.
+   - Sequential format: `PCV/%(year)s/00001`.
+
+### 5.3 Technical Architecture & Deliverables
+- **Data Models**: `et.voucher` and `et.voucher.line`.
+- **Automatic Double-Entry General Ledger Posting**:
+  - Payment (`cpv`, `bpv`, `pcv`): Debit line accounts (Expenses/Payables/Assets), Credit Journal default liquidity account (Cash/Bank).
+  - Receipt (`crv`): Debit Journal default liquidity account (Cash/Bank), Credit line accounts (Revenue/Receivables).
+- **Sequences**: 4 independent `ir.sequence` records for CPV, CRV, BPV, and PCV.
+- **Dedicated Menus**: Main menu **Vouchers (የክፍያ ሰነዶች)** under Invoicing with filtered sub-actions for each voucher type.
+- **Smart Link**: Direct navigation between Voucher and created `account.move` Journal Entry.

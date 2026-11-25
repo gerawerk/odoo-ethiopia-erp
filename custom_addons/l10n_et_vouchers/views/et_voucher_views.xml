@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Ethiopian Financial Voucher Form View -->
+    <record id="view_et_voucher_form" model="ir.ui.view">
+        <field name="name">et.voucher.form</field>
+        <field name="model">et.voucher</field>
+        <field name="arch" type="xml">
+            <form string="Ethiopian Financial Voucher">
+                <header>
+                    <button name="action_post" string="Confirm &amp; Post (አረጋግጥ)" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_draft" string="Reset to Draft (ወደ ረቂቅ መልስ)" type="object"
+                            class="btn-secondary" invisible="state != 'cancelled'"/>
+                    <button name="action_cancel" string="Cancel Voucher (ሰነድ ሰርዝ)" type="object"
+                            class="btn-secondary" invisible="state not in ('draft', 'posted')"
+                            confirm="Are you sure you want to cancel this voucher and reverse any posted accounting entry?"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_journal_entry" type="object"
+                                class="oe_stat_button" icon="fa-book"
+                                invisible="not move_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Journal Entry</span>
+                                <span class="o_stat_value"><field name="move_id" readonly="1"/></span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <label for="name" string="Voucher Number (የሰነድ ቁጥር)"/>
+                        <h1>
+                            <field name="name" readonly="1" placeholder="New / Draft"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group name="header_left">
+                            <field name="voucher_type" readonly="state != 'draft'"/>
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="partner_tin_number"/>
+                            <field name="journal_id" readonly="state != 'draft'"/>
+                        </group>
+                        <group name="header_right">
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <!-- Bank / Cheque Instrument Details (Only for BPV) -->
+                    <group string="Bank &amp; Cheque Instrument Details (የባንክ እና የቼክ መረጃ)" invisible="voucher_type != 'bpv'">
+                        <group>
+                            <field name="bank_payment_method" readonly="state != 'draft'"/>
+                            <field name="cheque_number" readonly="state != 'draft'"/>
+                            <field name="cheque_date" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="payee_bank_id" readonly="state != 'draft'"/>
+                            <field name="payee_bank_account" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <!-- Tab 1: Breakdown Lines -->
+                        <page string="Voucher Lines (የክፍያ ዝርዝር)" name="voucher_lines">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <field name="account_id"/>
+                                    <field name="name" placeholder="Particulars / Description"/>
+                                    <field name="partner_id" optional="show"/>
+                                    <field name="amount" sum="Total"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+
+                            <group col="12" class="oe_invoice_lines_tab">
+                                <group colspan="8">
+                                    <div class="p-2 border rounded bg-light" role="alert">
+                                        <div class="mb-1">
+                                            <span class="fw-bold">Amount in Words (AM / በፊደል): </span>
+                                            <field name="amount_in_words_am" readonly="1" class="fw-bold text-primary oe_inline"/>
+                                        </div>
+                                        <div>
+                                            <span class="fw-bold">Amount in Words (EN): </span>
+                                            <field name="amount_in_words_en" readonly="1" class="fw-bold text-primary oe_inline"/>
+                                        </div>
+                                    </div>
+                                </group>
+                                <group colspan="4" class="oe_subtotal_footer oe_right">
+                                    <field name="amount_total" class="oe_subtotal_footer_separator" widget="monetary"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- Tab 2: Purpose & Accounting Details -->
+                        <page string="Memo &amp; Accounting Notes (ማስታወሻ)" name="notes">
+                            <group>
+                                <field name="narration" placeholder="Explain the business purpose and authorization reference..." readonly="state != 'draft'"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <!-- Chatter for Audit Trail & Discussions -->
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Ethiopian Financial Voucher List View -->
+    <record id="view_et_voucher_tree" model="ir.ui.view">
+        <field name="name">et.voucher.tree</field>
+        <field name="model">et.voucher</field>
+        <field name="arch" type="xml">
+            <list string="Financial Vouchers (የክፍያ ሰነዶች)" sample="1">
+                <field name="name" decoration-bf="1"/>
+                <field name="date"/>
+                <field name="voucher_type" widget="badge"
+                       decoration-info="voucher_type == 'cpv'"
+                       decoration-success="voucher_type == 'crv'"
+                       decoration-primary="voucher_type == 'bpv'"
+                       decoration-warning="voucher_type == 'pcv'"/>
+                <field name="partner_id"/>
+                <field name="partner_tin_number" optional="hide"/>
+                <field name="journal_id"/>
+                <field name="cheque_number" optional="show"/>
+                <field name="amount_total" sum="Total Amount" decoration-bf="1"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'posted'"
+                       decoration-muted="state == 'cancelled'"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_et_voucher_search" model="ir.ui.view">
+        <field name="name">et.voucher.search</field>
+        <field name="model">et.voucher</field>
+        <field name="arch" type="xml">
+            <search string="Search Vouchers">
+                <field name="name" string="Voucher No."/>
+                <field name="partner_id" string="Payee / Payer"/>
+                <field name="partner_tin_number" string="TIN"/>
+                <field name="cheque_number" string="Cheque / CPO No."/>
+                <field name="narration" string="Purpose / Memo"/>
+
+                <filter string="Draft (ረቂቅ)" name="filter_draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Posted (የተረጋገጠ)" name="filter_posted" domain="[('state', '=', 'posted')]"/>
+                <separator/>
+                <filter string="Cash Payment (CPV)" name="filter_cpv" domain="[('voucher_type', '=', 'cpv')]"/>
+                <filter string="Cash Receipt (CRV)" name="filter_crv" domain="[('voucher_type', '=', 'crv')]"/>
+                <filter string="Bank Payment (BPV)" name="filter_bpv" domain="[('voucher_type', '=', 'bpv')]"/>
+                <filter string="Petty Cash (PCV)" name="filter_pcv" domain="[('voucher_type', '=', 'pcv')]"/>
+                <separator/>
+                <filter string="Today" name="filter_today" domain="[('date', '=', context_today())]"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Voucher Type (የሰነድ አይነት)" name="group_voucher_type" context="{'group_by': 'voucher_type'}"/>
+                    <filter string="Status (ሁኔታ)" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Partner (ተከፋይ/ከፋይ)" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Journal (ጆርናል)" name="group_journal" context="{'group_by': 'journal_id'}"/>
+                    <filter string="Voucher Date (ቀን)" name="group_date" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

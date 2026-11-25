@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Window Actions for Vouchers -->
+    <!-- 1. All Vouchers -->
+    <record id="action_et_voucher_all" model="ir.actions.act_window">
+        <field name="name">All Financial Vouchers (ሁሉም ሰነዶች)</field>
+        <field name="res_model">et.voucher</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Ethiopian Financial Voucher!
+            </p>
+            <p>
+                Manage Cash Payment (CPV), Cash Receipt (CRV), Bank Payment (BPV), and Petty Cash (PCV) with automated double-entry accounting integration.
+            </p>
+        </field>
+    </record>
+
+    <!-- 2. Cash Payment Voucher (CPV) -->
+    <record id="action_et_voucher_cpv" model="ir.actions.act_window">
+        <field name="name">Cash Payment Vouchers (CPV / የጥሬ ገንዘብ ክፍያ)</field>
+        <field name="res_model">et.voucher</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('voucher_type', '=', 'cpv')]</field>
+        <field name="context">{'default_voucher_type': 'cpv'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Record a Cash Payment Voucher (CPV)
+            </p>
+            <p>
+                Used for direct cash disbursements from the main cash safe/cashier.
+            </p>
+        </field>
+    </record>
+
+    <!-- 3. Cash Receipt Voucher (CRV) -->
+    <record id="action_et_voucher_crv" model="ir.actions.act_window">
+        <field name="name">Cash Receipt Vouchers (CRV / የጥሬ ገንዘብ መቀበያ)</field>
+        <field name="res_model">et.voucher</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('voucher_type', '=', 'crv')]</field>
+        <field name="context">{'default_voucher_type': 'crv'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Record a Cash Receipt Voucher (CRV)
+            </p>
+            <p>
+                Used whenever cash is received by the cashier from customers or other sources.
+            </p>
+        </field>
+    </record>
+
+    <!-- 4. Bank Payment Voucher (BPV) -->
+    <record id="action_et_voucher_bpv" model="ir.actions.act_window">
+        <field name="name">Bank Payment Vouchers (BPV / የባንክ ክፍያ / ቼክ)</field>
+        <field name="res_model">et.voucher</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('voucher_type', '=', 'bpv')]</field>
+        <field name="context">{'default_voucher_type': 'bpv'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Record a Bank Payment Voucher (BPV)
+            </p>
+            <p>
+                Used for payments disbursed via Cheque, CPO, or Electronic Bank Transfer (CBE, Awash, Telebirr, etc.).
+            </p>
+        </field>
+    </record>
+
+    <!-- 5. Petty Cash Voucher (PCV) -->
+    <record id="action_et_voucher_pcv" model="ir.actions.act_window">
+        <field name="name">Petty Cash Vouchers (PCV / የጥቃቅን ወጪ)</field>
+        <field name="res_model">et.voucher</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('voucher_type', '=', 'pcv')]</field>
+        <field name="context">{'default_voucher_type': 'pcv'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Record a Petty Cash Voucher (PCV)
+            </p>
+            <p>
+                Used for small routine operational disbursements under the petty cash imprest fund.
+            </p>
+        </field>
+    </record>
+
+    <!-- Top-Level Menu in Invoicing -->
+    <menuitem id="menu_et_vouchers_root"
+              name="Vouchers (የክፍያ ሰነዶች)"
+              parent="account.menu_finance"
+              sequence="3"/>
+
+    <!-- Sub-menus -->
+    <menuitem id="menu_et_voucher_all"
+              name="All Vouchers (ሁሉም ሰነዶች)"
+              parent="menu_et_vouchers_root"
+              action="action_et_voucher_all"
+              sequence="1"/>
+
+    <menuitem id="menu_et_voucher_cpv"
+              name="Cash Payment (CPV - የጥሬ ገንዘብ ክፍያ)"
+              parent="menu_et_vouchers_root"
+              action="action_et_voucher_cpv"
+              sequence="2"/>
+
+    <menuitem id="menu_et_voucher_crv"
+              name="Cash Receipt (CRV - የጥሬ ገንዘብ መቀበያ)"
+              parent="menu_et_vouchers_root"
+              action="action_et_voucher_crv"
+              sequence="3"/>
+
+    <menuitem id="menu_et_voucher_bpv"
+              name="Bank Payment (BPV - የባንክ ክፍያ / ቼክ)"
+              parent="menu_et_vouchers_root"
+              action="action_et_voucher_bpv"
+              sequence="4"/>
+
+    <menuitem id="menu_et_voucher_pcv"
+              name="Petty Cash (PCV - የጥቃቅን ወጪ)"
+              parent="menu_et_vouchers_root"
+              action="action_et_voucher_pcv"
+              sequence="5"/>
+</odoo>
