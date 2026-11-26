@@ -1,5 +1,8 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_et_voucher_user,et.voucher.user,model_et_voucher,base.group_user,1,1,1,0
-access_et_voucher_manager,et.voucher.manager,model_et_voucher,account.group_account_manager,1,1,1,1
+access_et_voucher_user,et.voucher.user,model_et_voucher,group_voucher_user,1,1,1,0
+access_et_voucher_checker,et.voucher.checker,model_et_voucher,group_voucher_checker,1,1,1,0
+access_et_voucher_cashier,et.voucher.cashier,model_et_voucher,group_voucher_cashier,1,1,1,0
+access_et_voucher_manager,et.voucher.manager,model_et_voucher,group_voucher_manager,1,1,1,1
+access_et_voucher_base_user,et.voucher.base,model_et_voucher,base.group_user,1,1,1,0
 access_et_voucher_line_user,et.voucher.line.user,model_et_voucher_line,base.group_user,1,1,1,1
-access_et_voucher_line_manager,et.voucher.line.manager,model_et_voucher_line,account.group_account_manager,1,1,1,1
+access_et_voucher_line_manager,et.voucher.line.manager,model_et_voucher_line,group_voucher_manager,1,1,1,1

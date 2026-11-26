@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Module Category for Ethiopian Vouchers -->
+    <record id="module_category_l10n_et_vouchers" model="ir.module.category">
+        <field name="name">Ethiopian Financial Vouchers (የክፍያ ሰነዶች)</field>
+        <field name="description">Segregation of duties for Ethiopian CPV, CRV, BPV, and PCV approval workflows</field>
+        <field name="sequence">25</field>
+    </record>
+
+    <!-- 1. Voucher Preparer / Clerk (ያዘጋጀው) -->
+    <record id="group_voucher_user" model="res.groups">
+        <field name="name">Preparer / Officer (ያዘጋጀው)</field>
+        <field name="category_id" ref="module_category_l10n_et_vouchers"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Users allowed to create draft vouchers and submit them for checking.</field>
+    </record>
+
+    <!-- 2. Voucher Checker / Internal Auditor (የመረመረው) -->
+    <record id="group_voucher_checker" model="res.groups">
+        <field name="name">Checker / Auditor (የመረመረው)</field>
+        <field name="category_id" ref="module_category_l10n_et_vouchers"/>
+        <field name="implied_ids" eval="[(4, ref('group_voucher_user'))]"/>
+        <field name="comment">Accountants and auditors allowed to verify documents and check vouchers.</field>
+    </record>
+
+    <!-- 3. Voucher Approver / Finance Director (የፈቀደው) -->
+    <record id="group_voucher_manager" model="res.groups">
+        <field name="name">Approver / Finance Manager (የፈቀደው)</field>
+        <field name="category_id" ref="module_category_l10n_et_vouchers"/>
+        <field name="implied_ids" eval="[(4, ref('group_voucher_checker')), (4, ref('account.group_account_invoice'))]"/>
+        <field name="comment">Executives and Finance Managers allowed to authorize and approve vouchers.</field>
+    </record>
+
+    <!-- 4. Cashier / Disburser (የከፈለ / ገንዘብ ያዥ) -->
+    <record id="group_voucher_cashier" model="res.groups">
+        <field name="name">Cashier / Disburser (የከፈለ / ገንዘብ ያዥ)</field>
+        <field name="category_id" ref="module_category_l10n_et_vouchers"/>
+        <field name="implied_ids" eval="[(4, ref('group_voucher_user'))]"/>
+        <field name="comment">Cashiers and bank signatories authorized to disburse funds and execute payments.</field>
+    </record>
+</odoo>

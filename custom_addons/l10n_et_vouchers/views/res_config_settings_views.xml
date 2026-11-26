@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_l10n_et_vouchers" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.l10n.et.vouchers</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='account']" position="inside">
+                <block title="Ethiopian Financial Vouchers (የክፍያ ሰነዶች ደንቦች)" name="l10n_et_vouchers_settings">
+                    <setting id="et_voucher_threshold_setting" string="Voucher Approval Controls" help="Configure Ethiopian segregation of duties and executive authorization limits">
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label for="voucher_approval_threshold" string="Executive Approval Threshold (ETB)" class="col-lg-5 o_light_label"/>
+                                <field name="voucher_approval_threshold" class="oe_inline"/>
+                            </div>
+                            <div class="row mt8">
+                                <field name="voucher_require_checker" class="oe_inline"/>
+                                <label for="voucher_require_checker" string="Enforce Two-Tier Checker Verification (የመረመረው)" class="col-lg-5 o_light_label"/>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

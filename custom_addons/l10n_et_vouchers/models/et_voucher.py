@@ -41,7 +41,9 @@ class EtVoucher(models.Model):
 
     state = fields.Selection([
         ('draft', 'Draft (ረቂቅ)'),
-        ('posted', 'Posted (የተረጋገጠ)'),
+        ('checked', 'Checked / Verified (የመረመረው)'),
+        ('approved', 'Approved / Authorized (የፈቀደው)'),
+        ('paid', 'Paid / Posted (የተከፈለ)'),
         ('cancelled', 'Cancelled (የተሰረዘ)'),
     ], string='Status (ሁኔታ)', default='draft', tracking=True, copy=False)
 
@@ -87,6 +89,68 @@ class EtVoucher(models.Model):
         string='Payment Purpose / Memo (የክፍያው ምክንያት / ማብራሪያ)',
         tracking=True,
         help='Detailed description of the transaction and business justification',
+    )
+
+    # 4-Stage Signatory Audit Trail Fields
+    prepared_by_id = fields.Many2one(
+        'res.users',
+        string='Prepared By (ያዘጋጀው)',
+        default=lambda self: self.env.user,
+        readonly=True,
+        copy=False,
+        tracking=True,
+        help='Officer/Clerk who created the payment voucher and compiled receipts',
+    )
+    prepared_date = fields.Datetime(
+        string='Date Prepared (የተዘጋጀበት ቀን)',
+        default=fields.Datetime.now,
+        readonly=True,
+        copy=False,
+    )
+    checked_by_id = fields.Many2one(
+        'res.users',
+        string='Checked By (የመረመረው)',
+        readonly=True,
+        copy=False,
+        tracking=True,
+        help='Senior accountant / auditor who verified transaction documents and account codes',
+    )
+    checked_date = fields.Datetime(
+        string='Date Checked (የተመረመረበት ቀን)',
+        readonly=True,
+        copy=False,
+    )
+    approved_by_id = fields.Many2one(
+        'res.users',
+        string='Approved By (የፈቀደው)',
+        readonly=True,
+        copy=False,
+        tracking=True,
+        help='Finance Manager / Executive who authorized the payment disbursement',
+    )
+    approved_date = fields.Datetime(
+        string='Date Approved (የተፈቀደበት ቀን)',
+        readonly=True,
+        copy=False,
+    )
+    paid_by_id = fields.Many2one(
+        'res.users',
+        string='Paid / Disbursed By (የከፈለው/ገንዘብ ያዥ)',
+        readonly=True,
+        copy=False,
+        tracking=True,
+        help='Cashier or bank signatory who disbursed the cash or executed the bank transfer',
+    )
+    paid_date = fields.Datetime(
+        string='Date Paid (የተከፈለበት ቀን)',
+        readonly=True,
+        copy=False,
+    )
+    rejection_reason = fields.Text(
+        string='Rejection / Clarification Note (የውድቅ ምክንያት)',
+        copy=False,
+        tracking=True,
+        help='Reason for rejecting the voucher back to draft for clarification',
     )
 
     # Bank Instrument Details (BPV)
@@ -196,20 +260,87 @@ class EtVoucher(models.Model):
         }
         return seq_map.get(self.voucher_type, 'l10n_et_vouchers.seq_cpv')
 
-    def action_post(self):
+    def action_check(self):
         """
-        Validates voucher lines, assigns sequential numbering, and generates
-        a balanced double-entry Journal Entry (account.move) in Odoo.
+        Stage 2: Checked / Verified (የመረመረው).
+        Senior Accountant / Auditor verifies line items, supporting documents,
+        and account distribution.
         """
         for voucher in self:
             if voucher.state != 'draft':
-                continue
+                raise UserError(_("Only draft vouchers can be submitted for checking."))
             if not voucher.line_ids:
-                raise ValidationError(_("Please add at least one line item before confirming this voucher."))
+                raise ValidationError(_("Please add at least one line item before submitting this voucher."))
             if voucher.amount_total <= 0:
                 raise ValidationError(_("Total voucher amount must be strictly greater than zero."))
 
-            # 1. Assign sequential voucher number if not yet assigned
+            voucher.checked_by_id = self.env.user
+            voucher.checked_date = fields.Datetime.now()
+            voucher.state = 'checked'
+            voucher.message_post(body=_(
+                "<b>Voucher Verified / Checked (የመረመረው):</b><br/>"
+                "• Verified By: %(user)s<br/>"
+                "• Date: %(date)s<br/>"
+                "• Total Amount: <b>%(amt)s %(curr)s</b>",
+                user=voucher.checked_by_id.name,
+                date=voucher.checked_date.strftime('%Y-%m-%d %H:%M:%S'),
+                amt=f"{voucher.amount_total:,.2f}",
+                curr=voucher.currency_id.symbol or voucher.currency_id.name or 'ETB',
+            ))
+
+    def action_approve(self):
+        """
+        Stage 3: Approved / Authorized (የፈቀደው).
+        Finance Manager / General Manager authorizes disbursement.
+        Enforces executive approval threshold check.
+        """
+        for voucher in self:
+            if voucher.state != 'checked':
+                raise UserError(_("Voucher must be in 'Checked' state before it can be approved."))
+
+            # Enforce threshold limit check
+            threshold = voucher.company_id.voucher_approval_threshold or 50000.0
+            if voucher.amount_total > threshold:
+                is_manager = (
+                    self.env.user.has_group('l10n_et_vouchers.group_voucher_manager') or
+                    self.env.user.has_group('account.group_account_manager')
+                )
+                if not is_manager:
+                    raise UserError(_(
+                        "Executive Authorization Required:\n\n"
+                        "This voucher amount (%(amt)s %(curr)s) exceeds the company threshold of %(thresh)s %(curr)s.\n"
+                        "Under Ethiopian financial control rules, it strictly requires authorization by a Finance Manager / Director.",
+                        amt=f"{voucher.amount_total:,.2f}",
+                        thresh=f"{threshold:,.2f}",
+                        curr=voucher.currency_id.symbol or voucher.currency_id.name or 'ETB',
+                    ))
+
+            voucher.approved_by_id = self.env.user
+            voucher.approved_date = fields.Datetime.now()
+            voucher.state = 'approved'
+            voucher.message_post(body=_(
+                "<b>Voucher Approved / Authorized (የፈቀደው):</b><br/>"
+                "• Authorized By: %(user)s<br/>"
+                "• Date: %(date)s",
+                user=voucher.approved_by_id.name,
+                date=voucher.approved_date.strftime('%Y-%m-%d %H:%M:%S'),
+            ))
+
+    def action_pay(self):
+        """
+        Stage 4: Paid / Disbursed (የከፈለው/ገንዘብ ያዥ).
+        Cashier or bank signatory disburses funds, assigns sequential number,
+        and posts the double-entry Journal Entry (account.move) to the General Ledger.
+        """
+        for voucher in self:
+            if voucher.state != 'approved':
+                raise UserError(_("Voucher must be authorized and in 'Approved' state before payment disbursement."))
+            if not voucher.line_ids:
+                raise ValidationError(_("Please add at least one line item before disbursing this voucher."))
+            if voucher.amount_total <= 0:
+                raise ValidationError(_("Total voucher amount must be strictly greater than zero."))
+
+            # 1. Assign sequential voucher number
             if not voucher.name or voucher.name == '/':
                 seq_code = voucher._get_sequence_code()
                 voucher.name = self.env['ir.sequence'].next_by_code(seq_code) or f"{voucher.voucher_type.upper()}/{fields.Date.today().year}/{voucher.id:05d}"
@@ -217,7 +348,6 @@ class EtVoucher(models.Model):
             # 2. Determine Journal's default liquidity account
             liquidity_account = voucher.journal_id.default_account_id
             if not liquidity_account:
-                # Fallback to payment method account if available
                 payment_methods = voucher.journal_id.outbound_payment_method_line_ids.filtered(lambda p: p.payment_account_id)
                 if payment_methods:
                     liquidity_account = payment_methods[0].payment_account_id
@@ -225,7 +355,7 @@ class EtVoucher(models.Model):
             if not liquidity_account:
                 raise UserError(_(
                     "The selected journal '%s' has no default account configured. "
-                    "Please set a default account on the journal in Accounting Settings."
+                    "Please configure a default account on the journal in Accounting Settings."
                 ) % voucher.journal_id.name)
 
             # 3. Build Double-Entry Journal Lines
@@ -234,7 +364,7 @@ class EtVoucher(models.Model):
             move_lines = []
             is_payment = voucher.voucher_type in ('cpv', 'bpv', 'pcv')
 
-            # Aggregate liquidity line
+            # Liquidity aggregate line
             liquidity_line_vals = {
                 'name': f"{voucher.name} - {voucher.narration or voucher.partner_id.name or ''}".strip(),
                 'account_id': liquidity_account.id,
@@ -268,23 +398,48 @@ class EtVoucher(models.Model):
             move.action_post()
 
             voucher.move_id = move.id
-            voucher.state = 'posted'
+            voucher.paid_by_id = self.env.user
+            voucher.paid_date = fields.Datetime.now()
+            voucher.state = 'paid'
 
             # 5. Log audit trail to chatter
             type_label = dict(self._fields['voucher_type'].selection).get(voucher.voucher_type)
             voucher.message_post(body=_(
-                "<b>Ethiopian Financial Voucher Confirmed:</b><br/>"
+                "<b>Ethiopian Financial Voucher Disbursed &amp; Paid (የተከፈለ):</b><br/>"
                 "• Type: %(type)s<br/>"
                 "• Number: <b>%(num)s</b><br/>"
                 "• Total Amount: <b>%(amt)s %(curr)s</b><br/>"
+                "• Disbursed By: %(user)s<br/>"
                 "• In Words: <i>%(words_am)s</i><br/>"
                 "• Journal Entry: %(move)s",
                 type=type_label,
                 num=voucher.name,
                 amt=f"{voucher.amount_total:,.2f}",
+                user=voucher.paid_by_id.name,
                 curr=voucher.currency_id.symbol or voucher.currency_id.name or 'ETB',
                 words_am=voucher.amount_in_words_am,
                 move=move.name,
+            ))
+
+    def action_post(self):
+        """Alias for action_pay to maintain backward compatibility."""
+        return self.action_pay()
+
+    def action_reject(self):
+        """
+        Rejects an in-review voucher back to Draft for clarification / correction.
+        """
+        for voucher in self:
+            if voucher.state not in ('checked', 'approved'):
+                raise UserError(_("Only vouchers in 'Checked' or 'Approved' status can be rejected."))
+            voucher.state = 'draft'
+            reason = voucher.rejection_reason or _("No reason provided.")
+            voucher.message_post(body=_(
+                "<b>Voucher Returned to Draft for Correction:</b><br/>"
+                "• Reason / Clarification: %(reason)s<br/>"
+                "• Returned By: %(user)s",
+                reason=reason,
+                user=self.env.user.name,
             ))
 
     def action_cancel(self):
@@ -293,7 +448,7 @@ class EtVoucher(models.Model):
             if voucher.move_id and voucher.move_id.state == 'posted':
                 voucher.move_id.button_cancel()
             voucher.state = 'cancelled'
-            voucher.message_post(body=_("Voucher has been cancelled."))
+            voucher.message_post(body=_("Voucher has been cancelled by %s.", self.env.user.name))
 
     def action_draft(self):
         """Resets cancelled voucher back to draft."""

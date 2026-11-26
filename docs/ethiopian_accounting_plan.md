@@ -132,3 +132,35 @@ In Ethiopia, internal financial controls and external statutory audits governed 
 - **Sequences**: 4 independent `ir.sequence` records for CPV, CRV, BPV, and PCV.
 - **Dedicated Menus**: Main menu **Vouchers (የክፍያ ሰነዶች)** under Invoicing with filtered sub-actions for each voucher type.
 - **Smart Link**: Direct navigation between Voucher and created `account.move` Journal Entry.
+
+---
+
+## 6. Day 6 Specification: 4-Stage Approval Workflow & Security Groups (`l10n_et_vouchers`)
+
+### 6.1 Ethiopian Segregation of Duties (SoD)
+Under Ethiopian internal audit standards, cash and bank disbursement must strictly observe the 4-eye / multi-stage principle across 4 defined roles:
+1. **Prepared By (ያዘጋጀው)**: Clerk / Accountant creates draft voucher, records line items, and attaches receipts.
+2. **Checked By (የመረመረው)**: Senior Accountant / Internal Auditor reviews documentary evidence, coding, and mathematical accuracy.
+3. **Approved By (የፈቀደው)**: Finance Director / General Manager authorizes disbursement. Enforces configurable financial threshold limits.
+4. **Paid / Disbursed By (የከፈለው/ገንዘብ ያዥ)**: Cashier disburses physical cash or executes bank transfer, triggering double-entry general ledger posting.
+
+### 6.2 Technical Architecture & Deliverables
+1. **4 Security Groups (`security/security_groups.xml`)**:
+   - `group_voucher_user`: Preparer / Officer (ያዘጋጀው)
+   - `group_voucher_checker`: Checker / Auditor (የመረመረው)
+   - `group_voucher_manager`: Approver / Finance Manager (የፈቀደው)
+   - `group_voucher_cashier`: Cashier / Disburser (የከፈለ / ገንዘብ ያዥ)
+2. **Signatory Audit Trail on `et.voucher`**:
+   - `prepared_by_id`, `prepared_date`
+   - `checked_by_id`, `checked_date`
+   - `approved_by_id`, `approved_date`
+   - `paid_by_id`, `paid_date`
+   - `rejection_reason` (with alert banner when returned for correction)
+3. **UI-Configurable Approval Thresholds**:
+   - `voucher_approval_threshold`: Minimum amount requiring Finance Manager / Executive authorization (Default: `50,000.00 ETB`).
+   - `voucher_require_checker`: Toggle to enforce mandatory two-tier checker verification.
+   - Configurable in **Settings -> Accounting -> Ethiopian Financial Vouchers**.
+4. **Lifecycle State Transitions**:
+   - `draft` $\xrightarrow{\text{action\_check}}$ `checked` $\xrightarrow{\text{action\_approve}}$ `approved` $\xrightarrow{\text{action\_pay}}$ `paid`.
+   - `action_reject`: Returns voucher to `draft` with mandatory justification note.
+   - `action_cancel`: Reverses any posted accounting entry and marks voucher cancelled.

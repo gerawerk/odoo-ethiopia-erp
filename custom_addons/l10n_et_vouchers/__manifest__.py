@@ -21,6 +21,9 @@ in accordance with AABE (Accounting & Auditing Board of Ethiopia) standards:
 
 Features:
 - Dedicated sequential numbering for each voucher type (CPV, CRV, BPV, PCV).
+- 4-Stage Approval Workflow (Draft -> Checked -> Approved -> Paid) with full signatory audit trail.
+- Segregation of duties with dedicated user security groups (Preparer, Checker, Approver, Cashier).
+- UI-configurable Executive Approval Thresholds in Accounting Settings.
 - Automated double-entry Journal Entry (account.move) generation upon posting.
 - Multi-line breakdown for multi-account expense allocation.
 - Cheque, CPO, and bank transfer tracking.
@@ -30,10 +33,12 @@ Features:
     'author': 'Custom Ethiopian Localization Team',
     'depends': ['account', 'l10n_et_tax'],
     'data': [
+        'security/security_groups.xml',
         'security/ir.model.access.csv',
         'data/ir_sequence_data.xml',
         'views/et_voucher_views.xml',
         'views/et_voucher_menus.xml',
+        'views/res_config_settings_views.xml',
     ],
     'installable': True,
     'application': True,
