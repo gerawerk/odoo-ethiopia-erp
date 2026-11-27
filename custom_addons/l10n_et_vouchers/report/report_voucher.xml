@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- QWeb PDF Report Action for Ethiopian Financial Vouchers -->
+    <record id="action_report_et_voucher" model="ir.actions.report">
+        <field name="name">Financial Voucher (የክፍያ ሰነድ)</field>
+        <field name="model">et.voucher</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_et_vouchers.report_et_voucher</field>
+        <field name="report_file">l10n_et_vouchers.report_et_voucher</field>
+        <field name="print_report_name">(object.name or 'Voucher').replace('/', '_')</field>
+        <field name="binding_model_id" ref="model_et_voucher"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Main Report Template -->
+    <template id="report_et_voucher">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="l10n_et_vouchers.report_et_voucher_document" t-lang="o.partner_id.lang or o.env.user.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <!-- Document Layout Template -->
+    <template id="report_et_voucher_document">
+        <t t-call="web.external_layout">
+            <t t-set="o" t-value="o.with_context(lang=lang)"/>
+            <div class="page" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #111827;">
+
+                <!-- Title Banner According to Voucher Type -->
+                <div class="text-center mb-3">
+                    <t t-if="o.voucher_type == 'cpv'">
+                        <h4 class="mb-0 fw-bold" style="letter-spacing: 0.5px;">CASH PAYMENT VOUCHER</h4>
+                        <h5 class="mb-2 fw-bold text-muted">የጥሬ ገንዘብ ክፍያ ማዘዣ (CPV)</h5>
+                    </t>
+                    <t t-elif="o.voucher_type == 'crv'">
+                        <h4 class="mb-0 fw-bold" style="letter-spacing: 0.5px;">CASH RECEIPT VOUCHER</h4>
+                        <h5 class="mb-2 fw-bold text-muted">የጥሬ ገንዘብ መቀበያ ሰነድ (CRV)</h5>
+                    </t>
+                    <t t-elif="o.voucher_type == 'bpv'">
+                        <h4 class="mb-0 fw-bold" style="letter-spacing: 0.5px;">BANK PAYMENT VOUCHER</h4>
+                        <h5 class="mb-2 fw-bold text-muted">የባንክ ክፍያ ማዘዣ / ቼክ (BPV)</h5>
+                    </t>
+                    <t t-else="">
+                        <h4 class="mb-0 fw-bold" style="letter-spacing: 0.5px;">PETTY CASH VOUCHER</h4>
+                        <h5 class="mb-2 fw-bold text-muted">የጥቃቅን ወጪ ማዘዣ (PCV)</h5>
+                    </t>
+                    <div style="display: inline-block; border-bottom: 2px solid #1f2937; width: 60%; margin: 0 auto;"/>
+                </div>
+
+                <!-- Top Two-Column Block: Issuer Company & Voucher Details -->
+                <div class="row mb-3">
+                    <!-- Left: Company / Issuing Organization -->
+                    <div class="col-7">
+                        <div class="p-2 border rounded" style="background-color: #fafafa; min-height: 105px;">
+                            <div class="fw-bold text-uppercase border-bottom pb-1 mb-1" style="font-size: 11px; color: #374151;">
+                                Organization Details (የድርጅቱ መረጃ)
+                            </div>
+                            <div><strong>Company:</strong> <span t-field="o.company_id.name"/></div>
+                            <div><strong>TIN (የግብር ከፋይ መለያ):</strong> <span class="font-monospace fw-bold" t-esc="o.company_id.vat or o.company_id.et_tin_number or 'N/A'"/></div>
+                            <div t-if="o.company_id.et_vat_reg_number">
+                                <strong>VAT Reg. No:</strong> <span t-field="o.company_id.et_vat_reg_number"/>
+                            </div>
+                            <div>
+                                <strong>Address:</strong>
+                                <span t-if="o.company_id.et_sub_city">Sub-City: <span t-field="o.company_id.et_sub_city"/>, </span>
+                                <span t-if="o.company_id.et_woreda">Woreda: <span t-field="o.company_id.et_woreda"/>, </span>
+                                <span t-field="o.company_id.city"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Voucher Number & Date Reference -->
+                    <div class="col-5">
+                        <div class="p-2 border rounded" style="background-color: #fafafa; min-height: 105px;">
+                            <div class="fw-bold text-uppercase border-bottom pb-1 mb-1" style="font-size: 11px; color: #374151;">
+                                Voucher Reference (የሰነድ መለያ)
+                            </div>
+                            <div class="mb-1">
+                                <strong>Voucher No (የሰነድ ቁጥር):</strong><br/>
+                                <span class="fs-5 fw-bold text-danger" t-esc="o.name or 'DRAFT'"/>
+                            </div>
+                            <div><strong>Date (ቀን):</strong> <span t-field="o.date"/></div>
+                            <div><strong>Journal (ጆርናል):</strong> <span t-field="o.journal_id.name"/></div>
+                            <div>
+                                <strong>Status:</strong>
+                                <span class="badge bg-secondary" t-esc="dict(o._fields['state'].selection).get(o.state)"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Block: Payee / Payer and Purpose -->
+                <div class="card mb-3 border">
+                    <div class="card-header py-1 px-2 bg-light fw-bold text-uppercase" style="font-size: 11px; color: #374151;">
+                        <span t-if="o.voucher_type == 'crv'">Payer / Received From (ገንዘብ ከፋይ)</span>
+                        <span t-else="">Payee / Paid To (ተከፋይ)</span>
+                    </div>
+                    <div class="card-body p-2">
+                        <div class="row">
+                            <div class="col-7">
+                                <div><strong>Name (ስም):</strong> <span class="fw-bold fs-6" t-esc="o.partner_id.name or 'General Disbursement'"/></div>
+                                <div t-if="o.partner_tin_number">
+                                    <strong>TIN (የግብር ከፋይ መለያ):</strong> <span class="font-monospace fw-bold" t-field="o.partner_tin_number"/>
+                                </div>
+                                <div t-if="o.partner_id.city">
+                                    <strong>Address:</strong> <span t-field="o.partner_id.city"/>, Ethiopia
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <div><strong>Purpose / Particulars (የክፍያው ምክንያት):</strong></div>
+                                <div class="fst-italic" style="color: #374151;">
+                                    <span t-esc="o.narration or 'No specific memo entered'"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bank / Cheque Instrument Details (Only for BPV) -->
+                <div t-if="o.voucher_type == 'bpv'" class="card mb-3 border">
+                    <div class="card-header py-1 px-2 bg-light fw-bold text-uppercase" style="font-size: 11px; color: #374151;">
+                        Bank Instrument &amp; Cheque Information (የባንክ እና የቼክ መረጃ)
+                    </div>
+                    <div class="card-body p-2">
+                        <div class="row">
+                            <div class="col-4">
+                                <strong>Instrument:</strong>
+                                <span class="fw-bold" t-esc="dict(o._fields['bank_payment_method'].selection).get(o.bank_payment_method)"/>
+                            </div>
+                            <div class="col-4">
+                                <strong>Cheque / Ref No:</strong>
+                                <span class="font-monospace fw-bold text-primary" t-esc="o.cheque_number or 'N/A'"/>
+                            </div>
+                            <div class="col-4">
+                                <strong>Cheque Date:</strong>
+                                <span t-esc="o.cheque_date or 'N/A'"/>
+                            </div>
+                        </div>
+                        <div class="row mt-1" t-if="o.payee_bank_id or o.payee_bank_account">
+                            <div class="col-6" t-if="o.payee_bank_id">
+                                <strong>Beneficiary Bank:</strong> <span t-field="o.payee_bank_id.name"/>
+                            </div>
+                            <div class="col-6" t-if="o.payee_bank_account">
+                                <strong>Beneficiary Account:</strong> <span class="font-monospace fw-bold" t-field="o.payee_bank_account"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line Items Breakdown Table -->
+                <div class="mb-3">
+                    <table class="table table-sm table-bordered text-center align-middle" style="border-color: #cbd5e1;">
+                        <thead style="background-color: #f1f5f9; font-size: 11px;">
+                            <tr>
+                                <th style="width: 5%;">#</th>
+                                <th style="width: 40%;" class="text-start">Description / Particulars<br/>(የክፍያው ዝርዝር ማብራሪያ)</th>
+                                <th style="width: 25%;" class="text-start">Account Code &amp; Name<br/>(የሂሳብ መደብ ቁጥር እና ስም)</th>
+                                <th style="width: 15%;" class="text-start">Beneficiary<br/>(አጋር)</th>
+                                <th style="width: 15%;" class="text-end">Amount (ETB)<br/>(መጠን በብር)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="idx" t-value="1"/>
+                            <t t-foreach="o.line_ids" t-as="line">
+                                <tr>
+                                    <td><t t-esc="idx"/></td>
+                                    <td class="text-start"><span t-field="line.name"/></td>
+                                    <td class="text-start">
+                                        <span class="font-monospace" t-esc="line.account_id.code"/> - <span t-esc="line.account_id.name"/>
+                                    </td>
+                                    <td class="text-start">
+                                        <span t-esc="line.partner_id.name or o.partner_id.name or '-'"/>
+                                    </td>
+                                    <td class="text-end fw-bold">
+                                        <span t-field="line.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                    </td>
+                                </tr>
+                                <t t-set="idx" t-value="idx + 1"/>
+                            </t>
+                        </tbody>
+                        <tfoot style="background-color: #f8fafc; font-weight: bold;">
+                            <tr>
+                                <td colspan="4" class="text-end text-uppercase" style="font-size: 11px;">
+                                    Total Amount (ጠቅላላ ድምር):
+                                </td>
+                                <td class="text-end fw-bold fs-6 text-primary">
+                                    <span t-field="o.amount_total" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Bilingual Amount in Words Box -->
+                <div class="p-2 border rounded mb-3" style="background-color: #f8fafc;">
+                    <div>
+                        <strong>Amount in Words (AM / በፊደል):</strong>
+                        <span class="fw-bold" style="color: #1e3a8a;" t-esc="o.amount_in_words_am or 'ዜሮ ብር ብቻ'"/>
+                    </div>
+                    <div class="mt-1">
+                        <strong>Amount in Words (EN):</strong>
+                        <span class="fw-bold" style="color: #1e3a8a;" t-esc="o.amount_in_words_en or 'Zero Birr Only'"/>
+                    </div>
+                </div>
+
+                <!-- The 4 Mandatory Ethiopian Signature Blocks -->
+                <div class="border rounded p-2 mb-3" style="background-color: #fafafa;">
+                    <div class="text-center fw-bold text-uppercase border-bottom pb-1 mb-2" style="font-size: 11px; letter-spacing: 0.5px; color: #374151;">
+                        Mandatory Signatory Audit Trail &amp; Internal Controls (የፊርማዎች ዝርዝር)
+                    </div>
+                    <div class="row text-center" style="font-size: 11px;">
+                        <!-- 1. Prepared By -->
+                        <div class="col-3 border-end">
+                            <div class="fw-bold text-primary mb-1">1. Prepared By<br/>(ያዘጋጀው)</div>
+                            <div style="min-height: 40px;" class="d-flex align-items-center justify-content-center">
+                                <span class="fw-bold" t-esc="o.prepared_by_id.name or 'Pending'"/>
+                            </div>
+                            <div class="border-top pt-1 mt-1">
+                                <small class="text-muted">Date: <span t-esc="o.prepared_date and o.prepared_date.strftime('%Y-%m-%d') or '____-__-__'"/></small>
+                                <div class="mt-1">Signature: ____________</div>
+                            </div>
+                        </div>
+
+                        <!-- 2. Checked By -->
+                        <div class="col-3 border-end">
+                            <div class="fw-bold text-primary mb-1">2. Checked By<br/>(የመረመረው)</div>
+                            <div style="min-height: 40px;" class="d-flex align-items-center justify-content-center">
+                                <span class="fw-bold" t-esc="o.checked_by_id.name or 'Pending Verification'"/>
+                            </div>
+                            <div class="border-top pt-1 mt-1">
+                                <small class="text-muted">Date: <span t-esc="o.checked_date and o.checked_date.strftime('%Y-%m-%d') or '____-__-__'"/></small>
+                                <div class="mt-1">Signature: ____________</div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Approved By -->
+                        <div class="col-3 border-end">
+                            <div class="fw-bold text-primary mb-1">3. Approved By<br/>(የፈቀደው)</div>
+                            <div style="min-height: 40px;" class="d-flex align-items-center justify-content-center">
+                                <span class="fw-bold" t-esc="o.approved_by_id.name or 'Pending Approval'"/>
+                            </div>
+                            <div class="border-top pt-1 mt-1">
+                                <small class="text-muted">Date: <span t-esc="o.approved_date and o.approved_date.strftime('%Y-%m-%d') or '____-__-__'"/></small>
+                                <div class="mt-1">Signature: ____________</div>
+                            </div>
+                        </div>
+
+                        <!-- 4. Paid / Disbursed By -->
+                        <div class="col-3">
+                            <div class="fw-bold text-primary mb-1">
+                                <span t-if="o.voucher_type == 'crv'">4. Received By<br/>(ገንዘብ ያዥ)</span>
+                                <span t-else="">4. Disbursed By<br/>(የከፈለው/ገንዘብ ያዥ)</span>
+                            </div>
+                            <div style="min-height: 40px;" class="d-flex align-items-center justify-content-center">
+                                <span class="fw-bold" t-esc="o.paid_by_id.name or 'Pending Disbursement'"/>
+                            </div>
+                            <div class="border-top pt-1 mt-1">
+                                <small class="text-muted">Date: <span t-esc="o.paid_date and o.paid_date.strftime('%Y-%m-%d') or '____-__-__'"/></small>
+                                <div class="mt-1">Signature: ____________</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Acknowledgement & Stamp Area -->
+                <div class="row pt-1" style="font-size: 11px;">
+                    <div class="col-8">
+                        <div class="border rounded p-2" style="background-color: #fafafa; min-height: 75px;">
+                            <div class="fw-bold text-uppercase border-bottom pb-1 mb-1">
+                                Payee Acknowledgement of Receipt (የተከፋይ ማረጋገጫ)
+                            </div>
+                            <p class="mb-1" style="font-size: 10px;">
+                                I hereby acknowledge receipt of the above specified sum of money in full settlement of the transaction.
+                            </p>
+                            <div class="row mt-2">
+                                <div class="col-6">Receiver Name: <span class="fw-bold" t-esc="o.partner_id.name or '_______________________'"/></div>
+                                <div class="col-6">Signature / Date: _______________________</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border rounded p-2 text-center" style="height: 75px; border-style: dashed !important; border-color: #94a3b8;">
+                            <span class="text-muted fw-bold">Official Seal / Stamp<br/>(የድርጅቱ ማህተም)</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </t>
+    </template>
+</odoo>

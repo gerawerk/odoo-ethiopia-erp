@@ -20,6 +20,8 @@
                     <button name="action_cancel" string="Cancel Voucher (ሰነድ ሰርዝ)" type="object"
                             class="btn-secondary" invisible="state not in ('draft', 'checked', 'approved', 'paid')"
                             confirm="Are you sure you want to cancel this voucher and reverse any posted accounting entry?"/>
+                    <button name="action_print_voucher" string="Print Voucher (ሰነድ አትም)" type="object"
+                            class="btn-secondary" icon="fa-print"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,checked,approved,paid"/>
                 </header>
                 <sheet>
@@ -171,6 +173,7 @@
                        decoration-success="state == 'paid'"
                        decoration-muted="state == 'cancelled'"/>
                 <field name="currency_id" column_invisible="True"/>
+                <button name="action_print_voucher" string="Print" type="object" icon="fa-print"/>
             </list>
         </field>
     </record>

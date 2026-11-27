@@ -164,3 +164,32 @@ Under Ethiopian internal audit standards, cash and bank disbursement must strict
    - `draft` $\xrightarrow{\text{action\_check}}$ `checked` $\xrightarrow{\text{action\_approve}}$ `approved` $\xrightarrow{\text{action\_pay}}$ `paid`.
    - `action_reject`: Returns voucher to `draft` with mandatory justification note.
    - `action_cancel`: Reverses any posted accounting entry and marks voucher cancelled.
+
+---
+
+## 7. Day 7 Specification: Bilingual Printable Voucher QWeb PDF Report (`l10n_et_vouchers`)
+
+### 7.1 Statutory Layout & Standards
+In accordance with Ethiopian GAAP and AABE audit guidelines, corporate payment vouchers must generate an official printable document containing:
+- Distinct header per voucher type:
+  - **CPV**: Cash Payment Voucher / የጥሬ ገንዘብ ክፍያ ማዘዣ
+  - **CRV**: Cash Receipt Voucher / የጥሬ ገንዘብ መቀበያ ሰነድ
+  - **BPV**: Bank Payment Voucher / የባንክ ክፍያ ማዘዣ / ቼክ
+  - **PCV**: Petty Cash Voucher / የጥቃቅን ወጪ ማዘዣ
+- Issuer Company details (Name, TIN, VAT No, Registered Address).
+- Payee / Payer identification, 10-digit TIN, and business purpose / memo.
+- Bank instrument details for BPV (Instrument type, Cheque leaf / CPO / Transfer number, cheque date, beneficiary bank & account).
+- Multi-line breakdown table: line item description, General Ledger account code and name, and line amounts.
+- Total amount displayed in both **Amharic** words (*"አስራ አምስት ሺህ አራት መቶ ሰላሳ ሁለት ብር ከሰባ አምስት ሳንቲም ብቻ"*) and **English** words (*"Fifteen Thousand Four Hundred Thirty-Two Birr and Seventy-Five Cents Only"*).
+
+### 7.2 The 4 Mandatory Signature Blocks
+The voucher report features 4 side-by-side signature blocks showing the authenticated user, approval date, and signature space:
+1. **Prepared By (ያዘጋጀው)**: Name, date, signature.
+2. **Checked By (የመረመረው)**: Senior accountant / internal auditor name, verification date, signature.
+3. **Approved By (የፈቀደው)**: Finance director / executive approver name, approval date, signature.
+4. **Disbursed By (የከፈለው/ገንዘብ ያዥ)**: Cashier or bank signatory name, disbursement date, signature.
+- **Payee Acknowledgement Box**: Legal receipt statement with receiver name, signature, and official company stamp / seal box.
+
+### 7.3 Action & UI Integration
+- Report Action: `action_report_et_voucher` (`qweb-pdf`).
+- Header button **`Print Voucher (ሰነድ አትም)`** available on the form and on each list row.

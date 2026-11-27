@@ -457,6 +457,11 @@ class EtVoucher(models.Model):
                 raise UserError(_("Cannot reset to draft while journal entry is posted."))
             voucher.state = 'draft'
 
+    def action_print_voucher(self):
+        """Prints the official bilingual Ethiopian Financial Voucher PDF."""
+        self.ensure_one()
+        return self.env.ref('l10n_et_vouchers.action_report_et_voucher').report_action(self)
+
     def action_view_journal_entry(self):
         """Action for the smart button on form view opening the created journal entry."""
         self.ensure_one()

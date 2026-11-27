@@ -36,6 +36,7 @@ Features:
         'security/security_groups.xml',
         'security/ir.model.access.csv',
         'data/ir_sequence_data.xml',
+        'report/report_voucher.xml',
         'views/et_voucher_views.xml',
         'views/et_voucher_menus.xml',
         'views/res_config_settings_views.xml',
